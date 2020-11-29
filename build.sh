@@ -4,7 +4,7 @@ set -ex
 IMAGE=akeylimepie/nginx
 
 NGINX_VERSIONS=(
-  1.19.4
+  1.19.5
 )
 
 function build() {
