@@ -16,10 +16,6 @@ fi
 
 cp $USER_VHOST $NGINX_VHOST
 
-if [ -f "$NGINX_VHOST_DEFAULT" ]; then
-  rm $NGINX_VHOST_DEFAULT
-fi
-
 sed -i -r -e "s/%DOMAINS%/$DOMAINS/g" $NGINX_VHOST
 
 ACME_DOMAIN_OPTION="-d ${DOMAINS// / -d }"
@@ -32,8 +28,15 @@ echo "Issue the cert: $DOMAINS"
   --renew-hook "nginx -s reload"
 
 /root/.acme.sh/acme.sh --install-cert $ACME_DOMAIN_OPTION \
-  --fullchain-file /etc/nginx/ssl/fullchain.pem \
-  --cert-file /etc/nginx/ssl/cert.pem \
-  --key-file /etc/nginx/ssl/key.pem
+  --fullchain-file /etc/nginx/ssl/app/fullchain.pem \
+  --cert-file /etc/nginx/ssl/app/cert.pem \
+  --key-file /etc/nginx/ssl/app/key.pem
+
+openssl req -x509 -newkey rsa:4096 -nodes -days 365 \
+        -subj  "/C=CA/ST=QC/O=Company Inc/CN=example.com" \
+        -out /etc/nginx/ssl/default/cert.pem \
+        -keyout /etc/nginx/ssl/default/key.pem
+
+echo "Start!"
 
 nginx -g "daemon off;"

@@ -13,9 +13,12 @@ RUN set -ex \
     && cd /acme_src && ./acme.sh --install --cert-home /acme_cert \
     && apk del git \
     && rm -rf /acme_src /var/cache/apk/* \
-    && mkdir /etc/nginx/ssl
+    && mkdir /etc/nginx/ssl \
+    && mkdir /etc/nginx/ssl/app \
+    && mkdir /etc/nginx/ssl/default
 
 COPY ./nginx.conf /etc/nginx/nginx.conf
+COPY ./default.conf /etc/nginx/conf.d/default.conf
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
