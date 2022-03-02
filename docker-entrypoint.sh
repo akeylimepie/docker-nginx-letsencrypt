@@ -22,6 +22,8 @@ ACME_DOMAIN_OPTION="-d ${DOMAINS// / -d }"
 
 echo "Issue the cert: $DOMAINS"
 
+/root/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+
 /root/.acme.sh/acme.sh --issue \
   --dns dns_cf \
   $ACME_DOMAIN_OPTION \
@@ -33,10 +35,12 @@ echo "Issue the cert: $DOMAINS"
   --key-file /etc/nginx/ssl/app/key.pem
 
 openssl req -x509 -newkey rsa:4096 -nodes -days 365 \
-        -subj  "/C=CA/ST=QC/O=Company Inc/CN=example.com" \
-        -out /etc/nginx/ssl/default/cert.pem \
-        -keyout /etc/nginx/ssl/default/key.pem
+  -subj "/C=CA/ST=QC/O=Company Inc/CN=example.com" \
+  -out /etc/nginx/ssl/default/cert.pem \
+  -keyout /etc/nginx/ssl/default/key.pem
 
-echo "Start!"
+echo "Start cron"
+crond
 
+echo "Start nginx"
 nginx -g "daemon off;"

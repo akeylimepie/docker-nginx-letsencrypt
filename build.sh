@@ -4,7 +4,7 @@ set -ex
 IMAGE=akeylimepie/nginx
 
 NGINX_VERSIONS=(
-  1.20.0
+  1.21.6
 )
 
 function build() {
@@ -25,8 +25,10 @@ function build() {
     -t $IMAGE:"$TAG_LATEST" .
 
   TAG_SPECIAL="${MAJOR}.${MINOR}.${PATCH}"
+  tag "$TAG_LATEST" "latest"
   tag "$TAG_LATEST" "$TAG_SPECIAL"
 
+  TAGS+=("latest")
   TAGS+=("$TAG_LATEST")
   TAGS+=("$TAG_SPECIAL")
 }
