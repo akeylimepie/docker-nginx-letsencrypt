@@ -19,28 +19,18 @@ function build() {
   fi
 
   TAG_LATEST="${MAJOR}.${MINOR}-latest"
-
-  docker build \
-    --build-arg NGINX_VERSION="$NGINX_VERSION" \
-    -t $IMAGE:"$TAG_LATEST" .
-
   TAG_SPECIAL="${MAJOR}.${MINOR}.${PATCH}"
-  tag "$TAG_LATEST" "latest"
-  tag "$TAG_LATEST" "$TAG_SPECIAL"
 
-  TAGS+=("latest")
-  TAGS+=("$TAG_LATEST")
-  TAGS+=("$TAG_SPECIAL")
-}
-
-function tag() {
-  docker tag $IMAGE:"$1" $IMAGE:"$2"
+  docker buildx build \
+    --platform linux/amd64,linux/arm64 \
+    --build-arg NGINX_VERSION="$NGINX_VERSION" \
+    --tag $IMAGE:"latest" \
+    --tag $IMAGE:"$TAG_LATEST" \
+    --tag $IMAGE:"$TAG_SPECIAL" \
+    --push \
+    .
 }
 
 for NGINX_VERSION in "${NGINX_VERSIONS[@]}"; do
   build "$NGINX_VERSION"
-done
-
-for TAG in "${TAGS[@]}"; do
-  docker push $IMAGE:"$TAG"
 done
