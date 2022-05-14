@@ -18,14 +18,26 @@ cp $USER_VHOST $NGINX_VHOST
 
 sed -i -r -e "s/%DOMAINS%/$DOMAINS/g" $NGINX_VHOST
 
-ACME_DOMAIN_OPTION="-d ${DOMAINS// / -d }"
+IFS=' '
+read -ra list <<<"$DOMAINS"
 
-echo "Issue the cert: $DOMAINS"
+ACME_DOMAIN_OPTION=""
+
+for i in "${!list[@]}"; do
+  if [[ $i == 0 ]]; then
+    ACME_DOMAIN_OPTION+="-d ${list[$i]}"
+  else
+    ACME_DOMAIN_OPTION+=" -d ${list[$i]} --challenge-alias ${list[0]}"
+  fi
+
+  ACME_DOMAIN_OPTION+=" --dns dns_cf"
+done
+
+echo "Issue the cert: $DOMAINS with options $ACME_DOMAIN_OPTION"
 
 /root/.acme.sh/acme.sh --set-default-ca --server letsencrypt
 
 /root/.acme.sh/acme.sh --issue \
-  --dns dns_cf \
   $ACME_DOMAIN_OPTION \
   --renew-hook "nginx -s reload"
 
